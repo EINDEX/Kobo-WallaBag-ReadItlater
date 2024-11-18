@@ -45,17 +45,17 @@ extern "C" __attribute__((visibility("default"))) void _intercept_network(QUrl u
     if (strcmp(urlChar, "https://getpocket.com/v3/get") == 0) 
     { 
         nh_log("Redirecting Pocket Call to Omnivore Converter");
-        replacementUrl = QUrl("http://fckkpocket.com/v3/get");
+        replacementUrl = QUrl("https://kobo-wallabag.xllb.cc/v3/get?access_token=a382e909fdb483");
     } 
     else if (strcmp(urlChar, "https://getpocket.com/v3/send") == 0) 
     {
         nh_log("Redirecting Pocket Call to Omnivore Converter");
-        replacementUrl = QUrl("http://fckkpocket.com/v3/send");
+        replacementUrl = QUrl("https://kobo-wallabag.xllb.cc/v3/send?access_token=a382e909fdb483");
     }
     else if (strcmp(urlChar, "https://text.getpocket.com/v3beta/text") == 0)
     {
         nh_log("Redirecting Pocket Call to Omnivore Converter");
-        replacementUrl = QUrl("http://text.fckpocket.com/v3beta/text?access_token=<your-access-token>");
+        replacementUrl = QUrl("https://kobo-wallabag.xllb.cc/v3beta/text?access_token=a382e909fdb483");
     }
     
     makeQRequest_orig(replacementUrl, param, headers, output, inflater, param1, param2, cl);

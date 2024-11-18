@@ -1,4 +1,9 @@
 compatibility_date = "2024-10-11"
 
 [vars]
-OMNI_API_URL = "https://api-prod.omnivore.app/api"
+WALLABAG_URL = "https://wallabag.xllb.cc"
+WALLABAG_CLIENT_ID = "1_43hmkypj9mm840skk08kw44kc4go4sc8k8ogw4kokcggswks88"
+WALLABAG_CLIENT_SECRET = "2ug2mqhgs1c048gg8g8okss8ok8cows8o8ggc4c04wk884wko4"
+WALLABAG_USERNAME = "wallabag"
+WALLABAG_PASSWORD = "wallabag"
+ACCESS_TOKEN = "a382e909fdb483"
