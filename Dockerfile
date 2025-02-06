@@ -18,11 +18,9 @@ RUN npm ci && \
 FROM base AS runner
 WORKDIR /app
 
-ENV WALLABAG_URL=https://wallabag
-ENV WALLABAG_CLIENT_ID=client_id
-ENV WALLABAG_CLIENT_SECRET=client_secret
-ENV WALLABAG_USERNAME=username
-ENV WALLABAG_PASSWORD=password
+ENV HOARDER_URL=https://hoarder
+ENV HOARDER_API_KEY=apikey
+ENV ACCESS_TOKEN=access_token
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 hono

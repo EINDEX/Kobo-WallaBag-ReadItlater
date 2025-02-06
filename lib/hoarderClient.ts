@@ -23,7 +23,7 @@ export class HoarderClient {
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
       if (response.status === 404) {
-        return response.json()
+        return response.json();
       }
       const error = await response.json();
       throw new Error(
@@ -49,7 +49,7 @@ export class HoarderClient {
     if (result.bookmarks.length == 0) {
       return [];
     }
-    
+
     let res: HoarderBookmark[] = [];
     const lastAddingTime = new Date(
       result.bookmarks[result.bookmarks.length - 1].createdAt
@@ -106,13 +106,11 @@ export class HoarderClient {
     const response = await fetch(`${this.apiUrl}/api/v1/bookmarks`, {
       method: "POST",
       headers: this.getHeaders(),
-      body: JSON.stringify({ url , type: "link"}),
+      body: JSON.stringify({ url, type: "link" }),
     });
 
-    const result = await this.handleResponse<HoarderResponse<HoarderArticle>>(
-      response
-    );
-    return result.data;
+    const result = await this.handleResponse<HoarderBookmark>(response);
+    return result;
   }
 
   async deleteLink(id: string): Promise<boolean> {

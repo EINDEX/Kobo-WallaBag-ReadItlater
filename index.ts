@@ -67,10 +67,7 @@ app.post("/v3/get", async (c) => {
   console.log("/v3/get");
   const client = getHoarderClient(c);
   const bookmarks = await client.fetchPages(data.since || 0);
-  const converted = convertSearchResultsToPocketArticles(
-    bookmarks,
-    data.since
-  );
+  const converted = convertSearchResultsToPocketArticles(bookmarks);
   return c.json(converted);
 });
 

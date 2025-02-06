@@ -15,10 +15,10 @@ export function articleToPocketFormatFromHoarder(
       : "https://website.notexist/") +
     "#" +
     bookmark.id;
-  const content =
+  const content: string =
     bookmark.content.type == "link"
       ? bookmark.content.htmlContent
-      : marked(bookmark.content.text);
+      : marked(bookmark.content.text, { async: false });
   const wordCount = content.split(/\s+/).length;
 
   return {
@@ -76,7 +76,7 @@ const convertToPocketSchemea = (
           caption: "",
           credit: "",
         },
-        favorite: bookmark.favourited ? "1": "0",
+        favorite: bookmark.favourited ? "1" : "0",
         time_added: Math.floor(timeAdded).toString(),
         time_to_read: wordsToReadingTime(wordCount ?? 1),
         time_updated: Math.floor(timeUpdated).toString(),

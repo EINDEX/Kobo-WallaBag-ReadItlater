@@ -9,6 +9,7 @@ export interface HoarderAssets {
 }
 
 export interface HoarderBookmarkContent {
+    text: string;
     type: string,
     url: string,
     title: string, 
