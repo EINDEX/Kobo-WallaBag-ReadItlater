@@ -1,10 +1,10 @@
-# Getting Started Guide. 
+# Getting Started Guide
 
 Here is a small guide to getting this up and running on your local environment. 
 
 *Changes made are done so at your own risk. This requires updating the Kobo Devices firmware. This should be safe, but you do so at your own risk* 
 
-## Prerequisits. 
+## Prerequisites
 
 **Important** The instructions provided here are for a Kobo Clara HD Device. ***For Other Devices, please follow the guide at #TBD***
 
@@ -12,20 +12,18 @@ Currently this implementation requires you to host the server yourself, as it us
 
 In the future I am looking into a version that is hosted, rather than having a local version.  
 
-This guide will assume the use of raspberry pi or equivalent linux based machine to host the server. If on windows, you should be able to follow along using the [Windows subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install). Please not that I have no tested this on the WSL. 
+This guide will assume the use of a server (like Raspberry Pi) or equivalent machine to host the server. If on Windows, you should be able to follow along using the [Windows subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install). Please note that this has not been tested on WSL. 
 
-
-## Updating your Kobo Clara HD e-reader. 
+## Updating your Kobo Clara HD e-reader
 
 *Note* that the attached file is using version 4.37.21533 for a Kobo Clara HD E-Reader. If you need to follow these instructions for other versions, please use the following [website](https://pgaskin.net/KoboStuff/kobofirmware.html). 
 
 Please go to section #TBD to see how to create the KoboRoot file from scratch. 
 
-
 ### Updating
-Attached in this respository is a file, KoboRoot.tg.gz. It is located in the resources folder of this repository.
+Attached in this repository is a file, KoboRoot.tg.gz. It is located in the resources folder of this repository.
 
-This file contains a NickelHook library, that redirects pocket requests to the host.. In order to install this you must place it in the .kobo directory of your Kobo Device. Connect your device via USB, and place this file in the .kobo directory. This file may be hidden, and you will have to show hidden files if doing this via Explorer (Mac = CMD+Shift+.)
+This file contains a NickelHook library, that redirects pocket requests to the host. In order to install this you must place it in the .kobo directory of your Kobo Device. Connect your device via USB, and place this file in the .kobo directory. This file may be hidden, and you will have to show hidden files if doing this via Explorer (Mac = CMD+Shift+.)
 
 Reboot your device as you should see an update screen. Once completed, you will be placed back in the kobo screen. 
 
@@ -34,9 +32,9 @@ This update has done 2 things:
 * Enabled TelNet on your device (See [Here](https://yingtongli.me/blog/2018/07/30/kobo-telnet.html))
 * A hook, PocketInterceptor, has been installed.
 
-## Modifying your host file to redirect to the Raspberry Pi or equivalent.
+## Modifying your host file to redirect to your server
 
-* On your server machie (IE: Raspberry Pi), run the following command `hostname -I` This will get the network ip of the device. Note this down, as you will need it for the next step. 
+* On your server machine, run the following command `hostname -I` This will get the network ip of the device. Note this down, as you will need it for the next step. 
 
 * Get the IP Address of your Kobo Device, You can see this in Settings -> Device Information. It should be in a format as follows: `192.168.x.x`    
     
@@ -50,40 +48,50 @@ This update has done 2 things:
 
 ## Running the Proxy
 
-On the server device (ie: Raspberry pi), in the terminal, do the following
+On the server device, in the terminal, do the following:
 
-* Install NodeJs on the raspberry pi device. You can do so by following [this guide](https://www.golinuxcloud.com/install-nodejs-and-npm-on-raspberry-pi/#Method_1_Install_NodeJS_and_NPM_From_the_NodeSource_Repo)
+* Install NodeJs on your device. You can do so by following [this guide](https://www.golinuxcloud.com/install-nodejs-and-npm-on-raspberry-pi/#Method_1_Install_NodeJS_and_NPM_From_the_NodeSource_Repo)
 
-* Clone this repository by running `git clone https://github.com/Podginator/KoboOmnivoreConverter` 
+* Clone this repository by running `git clone https://github.com/eindex/Kobo-Hoarder-Proxy` 
 
-* Run the following commands
-    * `cd KoboOmnivoreConverter`
+* Run the following commands:
+    * `cd Kobo-Hoarder-Proxy`
     * `npm install`
-    * `npm build`
-    * `node ./index.js &`
+    * `npm run build`
+    * `npm start`
 
-* The proxy is now running in the background. Rebooting the device will stop the server. See [here](https://www.dexterindustries.com/howto/run-a-program-on-your-raspberry-pi-at-startup/)
+* The proxy is now running. You can also deploy it to Cloudflare Workers using `npm run deploy`.
 
-## Connecting to Omnivore
-In order to connect to Omnivore you need to do the following
+## Connecting to Hoarder
 
-* Create an API Key at the following url https://omnivore.app/settings/api
+In order to connect to Hoarder you need to do the following:
+
+* Create an API Key at Hoarder (https://hoarder.app)
 * Connect your Kobo e-reader device via USB. 
     * In folder `.kobo/Kobo/` There is a file called `Kobo eReader.conf`
-    * Open this file and edit the following section. In the AccessToken section add the API Key created on Omnivore
+    * Open this file and edit the following section. In the AccessToken section add any random string (this will be matched with the ACCESS_TOKEN in your server config)
     ```
     [Pocket]
-    AccessToken=<API Key> 
+    AccessToken=<Random String that matches ACCESS_TOKEN in wrangler.toml> 
     LastSync=0
     RemoveContentWhenRead=false
     UnsyncedUrls=@Invalid()
-    Username=<Email>
+    Username=<Any Email>
+    ```
+* Update your wrangler.toml file with your Hoarder API key and the same ACCESS_TOKEN you used in the Kobo config:
+    ```toml
+    [vars]
+    HOARDER_URL = "https://api.hoarder.app"
+    HOARDER_API_KEY = "<Your Hoarder API Key>"
+    ACCESS_TOKEN = "<Same Random String from Kobo config>"
     ```
 * Reboot the device.
 
-Now, when syncing articles, it should point instead to your local server. It will download articles from here. Pocket is no longer communicated with from here-on. 
+Now, when syncing articles, it should point to your server which will fetch articles from Hoarder. Pocket is no longer communicated with from here-on. 
 
 ### Troubleshooting
 
-* Ensure that both the Raspberry Pi and the Kobo Ereader are on the same network.
-
+* Ensure that both your server and the Kobo Ereader are on the same network if running locally.
+* Check the server logs for any API errors when syncing.
+* Verify your Hoarder API key is correct and has the necessary permissions.
+* Make sure the ACCESS_TOKEN matches between your server config and Kobo device config.

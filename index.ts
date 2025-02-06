@@ -2,36 +2,21 @@ import { Context, Hono } from "hono";
 import { env } from "hono/adapter";
 import {
   convertSearchResultsToPocketArticles,
-  articleToPocketFormatFromWallaBag,
-} from "./lib/pocketConverter";
-import { WallaBagClient } from "./lib/wallabagClient";
+  articleToPocketFormatFromHoarder,
+} from "./lib/hoarderConverter";
+import { HoarderClient } from "./lib/hoarderClient";
 
 type Bindings = {
-  WALLABAG_URL: string;
-  WALLABAG_CLIENT_ID: string;
-  WALLABAG_CLIENT_SECRET: string;
-  WALLABAG_USERNAME: string;
-  WALLABAG_PASSWORD: string;
+  HOARDER_URL: string;
+  HOARDER_API_KEY: string;
   ACCESS_TOKEN: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-const getWallaBagClient = async (c: Context): Promise<WallaBagClient> => {
-  const {
-    WALLABAG_URL,
-    WALLABAG_USERNAME,
-    WALLABAG_PASSWORD,
-    WALLABAG_CLIENT_ID,
-    WALLABAG_CLIENT_SECRET,
-  } = env<Bindings>(c);
-  return new WallaBagClient(
-    WALLABAG_URL,
-    WALLABAG_USERNAME,
-    WALLABAG_PASSWORD,
-    WALLABAG_CLIENT_ID,
-    WALLABAG_CLIENT_SECRET
-  );
+const getHoarderClient = (c: Context): HoarderClient => {
+  const { HOARDER_URL, HOARDER_API_KEY } = env<Bindings>(c);
+  return new HoarderClient(HOARDER_URL, HOARDER_API_KEY);
 };
 
 app.use(async (c: Context, next) => {
@@ -45,8 +30,9 @@ app.use(async (c: Context, next) => {
 
 app.post("/v3/send", async (c) => {
   const data = await c.req.json();
+  console.log("/v3/send");
   const { actions } = data;
-  const client = await getWallaBagClient(c);
+  const client = getHoarderClient(c);
   console.log(actions);
   const actionsList = actions
     .filter(
@@ -77,29 +63,27 @@ app.post("/v3/send", async (c) => {
 });
 
 app.post("/v3/get", async (c) => {
-  const accessToken = c.req.query("access_token");
-
   const data = await c.req.json();
-  console.log(data);
-  const client = await getWallaBagClient(c);
-  const articles = await client.fetchPages(data.since || 0);
+  console.log("/v3/get");
+  const client = getHoarderClient(c);
+  const bookmarks = await client.fetchPages(data.since || 0);
   const converted = convertSearchResultsToPocketArticles(
-    articles,
-    data.since || 0
+    bookmarks,
+    data.since
   );
   return c.json(converted);
 });
 
 app.post("/v3beta/text", async (c) => {
   const body = await c.req.formData();
-  console.log(body);
+  console.log("/v3beta/text");
   const url = body.get("url")!.toString();
   const splits = url.split("#");
   const id = splits[splits.length - 1];
-  const client = await getWallaBagClient(c);
-  const article = await client.fetchPage(id);
+  const client = getHoarderClient(c);
+  const bookmark = await client.fetchPage(id);
 
-  return c.json(articleToPocketFormatFromWallaBag(article));
+  return c.json(articleToPocketFormatFromHoarder(bookmark));
 });
 
 export default app;
